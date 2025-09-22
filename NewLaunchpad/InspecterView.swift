@@ -11,22 +11,46 @@ struct InspectorView: View {
     @ObservedObject var settings: CustomizationSettings
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(alignment: .leading, spacing: 24) {
 
-            ColorPicker("Background Tint", selection: $settings.backgroundColor, supportsOpacity: true)
+            // Background Tint
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Background Tint")
+                    .font(.headline)
+                ColorPicker("", selection: Binding(
+                    get: { Color(settings.backgroundBaseColor) },
+                    set: { newColor in settings.backgroundBaseColor = NSColor(newColor) }
+                ), supportsOpacity: false)
+                .labelsHidden()
+            }
 
-            Stepper("Icon Size: \(Int(settings.iconSize))", value: $settings.iconSize, in: 64...256, step: 8)
-            
+            // Icon Size
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Icon Size: \(Int(settings.iconSize))")
+                    .font(.headline)
+                Stepper("", value: $settings.iconSize, in: 64...256, step: 8)
+                    .labelsHidden()
+            }
 
-            Text("Icon Spacing")
-            Slider(value: $settings.spacing, in: 10...100, step: 5)
-                .frame(width: 200)
-            
+            // Icon Spacing
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Icon Spacing: \(Int(settings.spacing))")
+                    .font(.headline)
+                Slider(value: $settings.spacing, in: 10...100, step: 5)
+                    .frame(width: 200)
+            }
+
+            // Background Opacity
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Background Opacity: \(Int(settings.backgroundAlpha * 100))%")
+                    .font(.headline)
+                Slider(value: $settings.backgroundAlpha, in: 0...1, step: 0.05)
+                    .frame(width: 200)
+            }
 
             Spacer()
-            
         }
         .padding()
-        .frame(width: 300, height: 200)
+        .frame(width: 300, height: 500)
     }
 }

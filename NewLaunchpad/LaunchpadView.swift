@@ -17,12 +17,8 @@ struct LaunchpadView: View {
 
     var body: some View {
         ZStack {
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .ignoresSafeArea()
-
+  
             settings.backgroundColor
-                .blur(radius: 0.1)
                 .ignoresSafeArea()
                 .allowsHitTesting(false)
 

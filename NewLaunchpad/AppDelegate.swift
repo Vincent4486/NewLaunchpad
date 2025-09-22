@@ -9,8 +9,9 @@ import AppKit
 import SwiftUI
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    var window: NSWindow?
     var inspectorWindow: NSWindow?
-    var settings: CustomizationSettings?
+    var settings: CustomizationSettings!
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Set dock icon
@@ -19,16 +20,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             print("Applied applicationIconImage")
         }
 
-        // Launch in full screen
+        // Create fullscreen main window
         if let screen = NSScreen.main {
             let screenFrame = screen.visibleFrame
 
-            if let window = NSApplication.shared.windows.first {
-                window.setFrame(screenFrame, display: true)
-                window.level = .normal // or .floating if you want it above desktop
-                window.isOpaque = false
-                window.backgroundColor = .clear
-            }
+            let launchpadWindow = NSWindow(
+                contentRect: screenFrame,
+                styleMask: [.titled, .fullSizeContentView],
+                backing: .buffered,
+                defer: false
+            )
+
+            launchpadWindow.title = "Launchpad"
+            launchpadWindow.titleVisibility = .hidden
+            launchpadWindow.titlebarAppearsTransparent = true
+            launchpadWindow.setFrame(screenFrame, display: true)
+            launchpadWindow.level = .normal
+            launchpadWindow.isOpaque = false
+            launchpadWindow.backgroundColor = settings.backgroundNSColor
+            launchpadWindow.hasShadow = false
+            launchpadWindow.collectionBehavior = [.fullScreenPrimary, .canJoinAllSpaces]
+            launchpadWindow.isMovableByWindowBackground = true
+            launchpadWindow.contentView = NSHostingView(rootView: LaunchpadView(settings: settings))
+            launchpadWindow.makeKeyAndOrderFront(nil)
+            launchpadWindow.acceptsMouseMovedEvents = true
+            launchpadWindow.ignoresMouseEvents = false
+
+            self.window = launchpadWindow
+            self.settings = CustomizationSettings()
         }
     }
 
@@ -40,22 +59,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
-    }
-
-    // Optional: expose inspector logic here
-    func showInspector() {
-        guard let settings = settings else { return }
-
-        if inspectorWindow == nil {
-            let inspector = NSHostingController(rootView: InspectorView(settings: settings))
-            let window = NSWindow(contentViewController: inspector)
-            window.title = "Launchpad Inspector"
-            window.setContentSize(NSSize(width: 300, height: 200))
-            window.styleMask = [.titled, .closable, .resizable]
-            window.makeKeyAndOrderFront(nil)
-            inspectorWindow = window
-        } else {
-            inspectorWindow?.makeKeyAndOrderFront(nil)
-        }
     }
 }
